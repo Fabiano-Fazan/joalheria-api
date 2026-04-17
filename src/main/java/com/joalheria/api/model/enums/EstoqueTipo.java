@@ -3,15 +3,13 @@ package com.joalheria.api.model.enums;
 import lombok.Getter;
 
 @Getter
-public enum PedidoStatus {
-    PENDENTE("Pendente"),
-    EM_ANDAMENTO("Em andamento"),
-    ENTREGUE("Entregue"),
-    CANCELADO("Cancelado");
+public enum EstoqueTipo {
+    ENTRADA("Entrada"),
+    SAIDA("Saída");
 
     private final String descricao;
 
-    PedidoStatus(String descricao) {
+    EstoqueTipo(String descricao) {
         this.descricao = descricao;
     }
 

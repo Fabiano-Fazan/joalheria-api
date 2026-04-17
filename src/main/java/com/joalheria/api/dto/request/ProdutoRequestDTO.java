@@ -1,7 +1,6 @@
 package com.joalheria.api.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -26,4 +25,13 @@ public record ProdutoRequestDTO (
 
         @Min(value = 0, message = "A quantidade do produto deve ser maior ou igual a zero")
         Integer quantidade
-){}
+){
+        public ProdutoRequestDTO(String nome, String descricao, String cor, String categoria, BigDecimal preco, Integer quantidade) {
+                this.nome = nome;
+                this.descricao = descricao;
+                this.cor = cor;
+                this.categoria = categoria;
+                this.preco = preco;
+                this.quantidade = quantidade;
+        }
+}
