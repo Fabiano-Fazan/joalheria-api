@@ -35,6 +35,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponseDTO cadastrarProduto(ProdutoRequestDTO produtoRequestDTO){
         Produtos produto = new Produtos();
+        atualizaDados(produtoRequestDTO, produto);
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
     }
@@ -43,18 +44,24 @@ public class ProdutoService {
     public ProdutoResponseDTO atualizarProduto(UUID id, ProdutoRequestDTO produtoRequestDTO){
         Produtos produto = produtoRespository.findWithLockById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        atualizaDados(produtoRequestDTO, produto);
+        return new ProdutoResponseDTO(produto);
+        }
+
+
+    @Transactional
+    public void deletarProduto(UUID id){
+        produtoRespository.deleteById(id);
+
+    }
+
+    private void atualizaDados(ProdutoRequestDTO produtoRequestDTO, Produtos produto){
         produto.setNome(produtoRequestDTO.nome());
         produto.setDescricao(produtoRequestDTO.descricao());
         produto.setPreco(produtoRequestDTO.preco());
         produto.setCor(produtoRequestDTO.cor());
         produto.setCategoria(produtoRequestDTO.categoria());
         produto.setQuantidade(produtoRequestDTO.quantidade());
-        return new ProdutoResponseDTO(produto);
-        }
-
-    @Transactional
-    public void deletarProduto(UUID id){
-        produtoRespository.deleteById(id);
-
+        produtoRespository.save(produto);
     }
 }

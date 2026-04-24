@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/clientes")
+@RequestMapping("/api/clientes")
 public class ClienteController {
     private final ClienteService clienteService;
 

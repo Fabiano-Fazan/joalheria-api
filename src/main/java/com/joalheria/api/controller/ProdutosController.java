@@ -3,6 +3,7 @@ package com.joalheria.api.controller;
 import com.joalheria.api.dto.request.ProdutoRequestDTO;
 import com.joalheria.api.dto.response.ProdutoResponseDTO;
 import com.joalheria.api.service.ProdutoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/produtos")
+@RequestMapping("/api/produtos")
 public class ProdutosController {
     private final ProdutoService produtoService;
 
@@ -33,12 +34,12 @@ public class ProdutosController {
     }
 
     @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(@RequestBody ProdutoRequestDTO produtoRequestDTO){
+    public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(@Valid @RequestBody ProdutoRequestDTO produtoRequestDTO){
         return ResponseEntity.ok(produtoService.cadastrarProduto(produtoRequestDTO));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@PathVariable UUID id, @RequestBody ProdutoRequestDTO produtoRequestDTO){
+    public ResponseEntity<ProdutoResponseDTO> atualizarProduto(@PathVariable UUID id, @Valid @RequestBody ProdutoRequestDTO produtoRequestDTO){
         return ResponseEntity.ok(produtoService.atualizarProduto(id, produtoRequestDTO));
     }
 

@@ -2,6 +2,7 @@ package com.joalheria.api.service;
 
 import com.joalheria.api.dto.request.ClienteRequestDTO;
 import com.joalheria.api.dto.response.ClienteResponseDTO;
+import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.Cliente;
 import com.joalheria.api.repositoy.ClienteRepository;
 import jakarta.transaction.Transactional;
@@ -34,7 +35,7 @@ public class ClienteService {
 
     public ClienteResponseDTO buscarClientePorId(UUID id){
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
         return new ClienteResponseDTO(cliente);
     }
 
@@ -48,7 +49,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponseDTO atualizarCliente(UUID id, ClienteRequestDTO clienteRequestDTO){
         Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
         cliente.setTelefone(clienteRequestDTO.telefone());
         cliente.setEndereco(clienteRequestDTO.endereco());
         return new ClienteResponseDTO(cliente);
