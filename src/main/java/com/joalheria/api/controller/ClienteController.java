@@ -34,14 +34,10 @@ public class ClienteController {
     }
 
     @GetMapping("/telefone")
-    public ResponseEntity<Page<ClienteResponseDTO>> buscarClientePorTelefone(@RequestParam String telefone, Pageable pageable){
+    public ResponseEntity<Page<ClienteResponseDTO>> buscarClientePorTelefone(@RequestParam int telefone, Pageable pageable){
         return ResponseEntity.ok(clienteService.buscarClientePorTelefone(telefone, pageable));
     }
 
-    @PostMapping()
-    public ResponseEntity<ClienteResponseDTO> cadastrarCliente(@Valid @RequestBody ClienteRequestDTO clienteRequestDTO){
-        return ResponseEntity.ok(clienteService.cadastrarCliente(clienteRequestDTO));
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> atualizaCliente(@PathVariable UUID id, @Valid @RequestBody ClienteRequestDTO clienteRequestDTO){

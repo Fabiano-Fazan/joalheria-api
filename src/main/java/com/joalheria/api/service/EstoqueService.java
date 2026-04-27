@@ -2,6 +2,7 @@ package com.joalheria.api.service;
 
 import com.joalheria.api.dto.request.EstoqueRequestDTO;
 import com.joalheria.api.exception.RecursoNaoEncontradoException;
+import com.joalheria.api.exception.SemEstoqueException;
 import com.joalheria.api.model.entity.Estoque;
 import com.joalheria.api.model.entity.Pedido;
 import com.joalheria.api.model.entity.Produtos;
@@ -50,7 +51,7 @@ public class EstoqueService {
         Produtos produto = produtoRespository.findWithLockById(produtos.getId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         if (produto.getQuantidade() < quantidade) {
-            throw new RuntimeException("Quantidade insuficiente em estoque");
+            throw new SemEstoqueException("Quantidade insuficiente em estoque");
         }
         produto.setQuantidade(produto.getQuantidade() - quantidade);
         produtoRespository.save(produto);

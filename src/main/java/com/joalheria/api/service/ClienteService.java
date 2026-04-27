@@ -28,7 +28,7 @@ public class ClienteService {
                 .map(ClienteResponseDTO::new);
     }
 
-    public Page<ClienteResponseDTO> buscarClientePorTelefone(String telefone, Pageable pageable){
+    public Page<ClienteResponseDTO> buscarClientePorTelefone(int telefone, Pageable pageable){
         return clienteRepository.findByTelefone(telefone, pageable)
                 .map(ClienteResponseDTO::new);
     }
@@ -40,23 +40,39 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO cadastrarCliente(ClienteRequestDTO clienteRequestDTO){
-        Cliente cliente = new Cliente();
-        clienteRepository.save(cliente);
-        return new ClienteResponseDTO(cliente);
+    public Cliente buscarOuCadastrarPorGoogle(String email, String nome, String googleId){
+        return clienteRepository.findByEmail(email)
+                .map(cliente -> {
+                    if (!cliente.getGoogleId().equals(googleId)) {
+                        cliente.setGoogleId(googleId);
+                        return clienteRepository.save(cliente);
+                    }
+                    return cliente;
+                })
+                .orElseGet(() -> {
+                    Cliente novoCliente = new Cliente();
+                    novoCliente.setNome(nome);
+                    novoCliente.setEmail(email);
+                    novoCliente.setGoogleId(googleId);
+                    return clienteRepository.save(novoCliente);
+                });
     }
 
     @Transactional
     public ClienteResponseDTO atualizarCliente(UUID id, ClienteRequestDTO clienteRequestDTO){
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
-        cliente.setTelefone(clienteRequestDTO.telefone());
-        cliente.setEndereco(clienteRequestDTO.endereco());
+        atualizaDados(clienteRequestDTO, cliente);
         return new ClienteResponseDTO(cliente);
     }
 
     @Transactional
     public void deletarCliente(UUID id){
         clienteRepository.deleteById(id);
+    }
+
+    private void atualizaDados(ClienteRequestDTO dto, Cliente cliente){
+        cliente.setTelefone(dto.telefone());
+        cliente.setEndereco(dto.endereco());
     }
 }

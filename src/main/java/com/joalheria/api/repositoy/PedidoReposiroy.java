@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface PedidoReposiroy extends JpaRepository<Pedido, UUID> {
     Page<Pedido> findByClienteNomeContainingIgnoreCase(String nome, Pageable pageable);
+    Page<Pedido> findByClienteTelefone(int telefone,Pageable pageable);
 }

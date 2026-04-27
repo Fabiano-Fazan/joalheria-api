@@ -36,6 +36,7 @@ public class ProdutoService {
     public ProdutoResponseDTO cadastrarProduto(ProdutoRequestDTO produtoRequestDTO){
         Produtos produto = new Produtos();
         atualizaDados(produtoRequestDTO, produto);
+        produto.setDisponivel(true);
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
     }

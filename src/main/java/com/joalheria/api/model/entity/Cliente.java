@@ -27,7 +27,7 @@ public class Cliente {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String telefone;
+    private int telefone;
 
     private String endereco;
 

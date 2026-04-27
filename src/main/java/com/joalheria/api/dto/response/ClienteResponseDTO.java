@@ -8,7 +8,7 @@ public record ClienteResponseDTO(
         UUID id,
         String nome,
         String email,
-        String telefone,
+        int telefone,
         String endereco,
         String dataCadastro
 ) {
