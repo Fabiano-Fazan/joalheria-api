@@ -27,7 +27,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid PedidoRequestDTO pedidoRequestDTO, String emailCliente){
+    public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoRequestDTO pedidoRequestDTO, String emailCliente){
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.criarPedido(pedidoRequestDTO,emailCliente));
     }
 
