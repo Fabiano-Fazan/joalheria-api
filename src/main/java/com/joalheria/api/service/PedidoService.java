@@ -37,11 +37,6 @@ public class PedidoService {
                 .map(PedidoResponseDTO::new);
     }
 
-    public Page<PedidoResponseDTO> listarPorTelefone(int telefone, Pageable pageable) {
-        return pedidoReposiroy.findByClienteTelefone(telefone, pageable)
-                .map(PedidoResponseDTO::new);
-    }
-
     @Transactional
     public PedidoResponseDTO criarPedido(PedidoRequestDTO dto, String emailCliente){
         Pedido pedido = new Pedido();
