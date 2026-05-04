@@ -23,13 +23,17 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private LocalDateTime dataPedido;
 
+    @Column(nullable = false)
     private String observacoes;
 
+    @Column(nullable = false)
     private BigDecimal valorTotal;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PedidoStatus status;
 
     @ManyToOne

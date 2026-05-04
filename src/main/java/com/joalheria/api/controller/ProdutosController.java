@@ -7,9 +7,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,9 +37,17 @@ public class ProdutosController {
         return ResponseEntity.ok(produtoService.listarProdutosPorCategoria(categoria, pageable));
     }
 
-    @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(@Valid @RequestBody ProdutoRequestDTO produtoRequestDTO){
-        return ResponseEntity.ok(produtoService.cadastrarProduto(produtoRequestDTO));
+    @GetMapping("destaques")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarProdutosDestaque(){
+        return ResponseEntity.ok(produtoService.listarProdutosDestaque());
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(
+            @RequestPart("produto") @Valid ProdutoRequestDTO produtoRequestDTO,
+            @RequestPart("imagens") List<MultipartFile> imagens
+    ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.cadastrarProduto(produtoRequestDTO, imagens));
     }
 
     @PutMapping("{id}")

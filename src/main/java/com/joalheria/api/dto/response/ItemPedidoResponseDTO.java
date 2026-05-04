@@ -9,8 +9,7 @@ public record ItemPedidoResponseDTO(
         UUID id,
         String nomeProduto,
         Integer quantidade,
-        BigDecimal preco,
-        String fotoUrl
+        BigDecimal preco
 
 ) {
     public ItemPedidoResponseDTO(ItemPedido itemPedido) {
@@ -18,8 +17,7 @@ public record ItemPedidoResponseDTO(
                 itemPedido.getId(),
                 itemPedido.getProduto().getNome(),
                 itemPedido.getQuantidade(),
-                itemPedido.getPreco(),
-                itemPedido.getProduto().getFotoUrl()
+                itemPedido.getPreco()
         );
     }
 }

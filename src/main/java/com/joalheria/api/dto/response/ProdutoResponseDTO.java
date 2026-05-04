@@ -3,6 +3,7 @@ package com.joalheria.api.dto.response;
 import com.joalheria.api.model.entity.Produtos;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 public record ProdutoResponseDTO(
@@ -10,11 +11,13 @@ public record ProdutoResponseDTO(
         String nome,
         String descricao,
         BigDecimal preco,
-        String fotoUrl,
         String cor,
         String categoria,
         Integer quantidade,
-        Boolean disponivel
+        Boolean disponivel,
+        Boolean destaque,
+        List<ProdutoImagemResponseDTO> imagens
+
 ) {
     public ProdutoResponseDTO(Produtos produto) {
         this(
@@ -22,11 +25,15 @@ public record ProdutoResponseDTO(
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getPreco(),
-                produto.getFotoUrl(),
                 produto.getCor(),
                 produto.getCategoria(),
                 produto.getQuantidade(),
-                produto.getDisponivel()
+                produto.getDisponivel(),
+                produto.getDestaque(),
+                produto.getImagens()
+                        .stream()
+                        .map(ProdutoImagemResponseDTO::new)
+                        .toList()
         );
     }
 }

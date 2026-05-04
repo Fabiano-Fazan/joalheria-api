@@ -1,5 +1,6 @@
 package com.joalheria.api.service;
 
+import com.joalheria.api.domain.GeradorMensagemWhatsapp;
 import com.joalheria.api.domain.GeradorPedidos;
 
 import com.joalheria.api.dto.request.PedidoRequestDTO;
@@ -24,6 +25,7 @@ public class PedidoService {
     private final PedidoReposiroy pedidoReposiroy;
     private final GeradorPedidos geradorPedidos;
     private final ClienteRepository clienteRepository;
+    private final GeradorMensagemWhatsapp geradorMensagemWhatsapp;
 
     public Page<PedidoResponseDTO> listarPedidos(Pageable pageable){
         return pedidoReposiroy.findAll(pageable)
@@ -51,6 +53,7 @@ public class PedidoService {
         pedido.setStatus(PedidoStatus.COMPLETO);
         Pedido pedidoSalvo = pedidoReposiroy.save(pedido);
         geradorPedidos.registraMovimentoEstoque(pedidoSalvo);
+        geradorMensagemWhatsapp.geradorMensagem(pedidoSalvo);
         return new PedidoResponseDTO(pedidoSalvo);
     }
 
