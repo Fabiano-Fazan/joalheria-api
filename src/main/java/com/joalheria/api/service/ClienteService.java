@@ -59,8 +59,8 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO atualizarCliente(UUID id, ClienteRequestDTO clienteRequestDTO){
-        Cliente cliente = clienteRepository.findById(id)
+    public ClienteResponseDTO atualizarCliente(String emailCliente, ClienteRequestDTO clienteRequestDTO){
+        Cliente cliente = clienteRepository.findByEmail(emailCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
         atualizaDados(clienteRequestDTO, cliente);
         return new ClienteResponseDTO(cliente);

@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@Table(name = "Produto_Imagens")
 public class ProdutoImagem {
 
     @Id

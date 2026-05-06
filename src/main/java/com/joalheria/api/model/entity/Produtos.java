@@ -2,8 +2,11 @@ package com.joalheria.api.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Produtos {
 
     @Id
@@ -39,11 +43,14 @@ public class Produtos {
     @Column(nullable = false)
     private Integer quantidade = 0;
 
-    @Column(nullable = false)
     private Boolean disponivel;
 
     @Column(nullable = false)
     private Boolean destaque = false;
+
+    @Column(nullable = false)
+    @CreatedDate
+    private LocalDateTime dataCriacao;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoImagem> imagens = new ArrayList<>();

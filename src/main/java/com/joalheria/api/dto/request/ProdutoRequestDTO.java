@@ -24,14 +24,18 @@ public record ProdutoRequestDTO (
         BigDecimal preco,
 
         @Min(value = 0, message = "A quantidade do produto deve ser maior ou igual a zero")
-        Integer quantidade
+        Integer quantidade,
+
+        @NotNull(message = "O campo destaque é obrigatório")
+        Boolean destaque
 ){
-        public ProdutoRequestDTO(String nome, String descricao, String cor, String categoria, BigDecimal preco, Integer quantidade) {
+        public ProdutoRequestDTO(String nome, String descricao, String cor, String categoria, BigDecimal preco, Integer quantidade, Boolean destaque ) {
                 this.nome = nome;
                 this.descricao = descricao;
                 this.cor = cor;
                 this.categoria = categoria;
                 this.preco = preco;
                 this.quantidade = quantidade;
+                this.destaque = destaque;
         }
 }

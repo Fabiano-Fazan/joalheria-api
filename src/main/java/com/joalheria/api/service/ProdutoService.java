@@ -45,22 +45,23 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoResponseDTO cadastrarProduto(ProdutoRequestDTO produtoRequestDTO, List<MultipartFile> imagens){
+    public ProdutoResponseDTO cadastrarProduto(ProdutoRequestDTO produtoRequestDTO, List<MultipartFile> imagens, Integer imagemPrincipalIndex){
+        validaImagens(imagens, imagemPrincipalIndex);
         Produtos produto = new Produtos();
         atualizaDados(produtoRequestDTO, produto);
         produto.setDisponivel(true);
 
-        if (produto.getDestaque() == null) {
-            produto.setDestaque(false);
-        }
+        for (int i = 0; i < imagens.size(); i++) {
 
-        for (MultipartFile imagen : imagens) {
-            String urlImagem = cloudinaryService.uploadProdutoImagem(imagen, produto.getId());
-            ProdutoImagem produtoImagem = ProdutoImagem.builder()
-                    .imagemUrl(urlImagem)
+            String url = cloudinaryService.uploadProdutoImagem(imagens.get(i), produto.getId());
+
+            ProdutoImagem img = ProdutoImagem.builder()
+                    .imagemUrl(url)
+                    .imagemPrincipal(i == imagemPrincipalIndex)
                     .produto(produto)
                     .build();
-            produto.getImagens().add(produtoImagem);
+
+            produto.getImagens().add(img);
         }
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
@@ -88,17 +89,26 @@ public class ProdutoService {
         produto.setCor(produtoRequestDTO.cor());
         produto.setCategoria(produtoRequestDTO.categoria());
         produto.setQuantidade(produtoRequestDTO.quantidade());
+        produto.setDestaque(Boolean.TRUE.equals(produtoRequestDTO.destaque()));
         produtoRespository.save(produto);
     }
 
-    private void validaImagens(List<MultipartFile> imagens){
-        if (imagens == null || imagens.isEmpty()) {
+    private void validaImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex){
 
-            throw new NegocioException("É necessário enviar pelo menos uma imagem");
+        if (imagens == null || imagens.isEmpty()) {
+            throw new NegocioException("O produto precisa ter pelo menos uma imagem.");
         }
 
-        if(imagens.size() > 4){
-            throw new NegocioException("O número máximo de imagens é 4");
+        if (imagens.size() > 4) {
+            throw new NegocioException("O produto pode ter no máximo 4 imagens.");
+        }
+
+        if (imagemPrincipalIndex == null) {
+            throw new NegocioException("Selecione uma imagem principal.");
+        }
+
+        if (imagemPrincipalIndex < 0 || imagemPrincipalIndex >= imagens.size()) {
+            throw new NegocioException("Imagem principal inválida.");
         }
     }
 }

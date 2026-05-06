@@ -1,25 +1,41 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
-Cloudinary:
+cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 
+whatsapp:
+  numero: ${WHATSAPP_NUMERO}
+
 spring:
   application:
     name: joalheria-api
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 45MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 60000
+
   jpa:
     hibernate:
       ddl-auto: create
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
+
   security:
     oauth2:
       client:
@@ -34,7 +50,13 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+
       resourceserver:
-            jwt:
-              issuer-uri: https://accounts.google.com
-              jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+        jwt:
+          issuer-uri: https://accounts.google.com
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+    org.hibernate.orm.jdbc.bind: warn

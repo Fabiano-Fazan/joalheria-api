@@ -3,6 +3,8 @@ package com.joalheria.api.model.entity;
 import com.joalheria.api.model.enums.PedidoStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Setter
 @Builder
 @Table(name = "pedidos")
+@EntityListeners(AuditingEntityListener.class)
 public class Pedido {
 
     @Id
@@ -24,6 +27,7 @@ public class Pedido {
     private UUID id;
 
     @Column(nullable = false)
+    @CreatedDate
     private LocalDateTime dataPedido;
 
     @Column(nullable = false)
@@ -42,6 +46,4 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
-
-
 }

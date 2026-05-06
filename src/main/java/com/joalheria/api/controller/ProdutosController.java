@@ -45,9 +45,10 @@ public class ProdutosController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProdutoResponseDTO> cadastrarProduto(
             @RequestPart("produto") @Valid ProdutoRequestDTO produtoRequestDTO,
-            @RequestPart("imagens") List<MultipartFile> imagens
+            @RequestPart("imagens") List<MultipartFile> imagens,
+            @RequestParam("imagemPrincipalIndex") Integer imagemPrincipalIndex
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.cadastrarProduto(produtoRequestDTO, imagens));
+        return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.cadastrarProduto(produtoRequestDTO, imagens, imagemPrincipalIndex));
     }
 
     @PutMapping("{id}")

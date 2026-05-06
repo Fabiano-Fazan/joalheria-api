@@ -38,9 +38,9 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.buscarClientePorTelefone(telefone, pageable));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> atualizaCliente(@PathVariable UUID id, @Valid @RequestBody ClienteRequestDTO clienteRequestDTO){
-        return ResponseEntity.ok(clienteService.atualizarCliente(id, clienteRequestDTO));
+    @PutMapping("/{email}")
+    public ResponseEntity<ClienteResponseDTO> atualizaCliente(@PathVariable String email, @Valid @RequestBody ClienteRequestDTO clienteRequestDTO){
+        return ResponseEntity.ok(clienteService.atualizarCliente(email, clienteRequestDTO));
     }
 
     @DeleteMapping("/{id}")

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/pedidos")
 public class PedidoController {
     private final PedidoService pedidoService;
 
@@ -27,7 +28,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoRequestDTO pedidoRequestDTO, String emailCliente){
+    public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoRequestDTO pedidoRequestDTO, @RequestParam("emailCliente") String emailCliente){
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.criarPedido(pedidoRequestDTO,emailCliente));
     }
 
