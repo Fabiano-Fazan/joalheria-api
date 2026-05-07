@@ -14,16 +14,23 @@ public record PedidoResponseDTO(
         String observacoes,
         BigDecimal valorTotal,
         String status,
+        String linkWhatsapp,
         ClienteResponseDTO cliente,
         List<ItemPedidoResponseDTO> itens
 ) {
-    public PedidoResponseDTO(Pedido pedido) {
+    public PedidoResponseDTO(Pedido pedido){
+        this(pedido,null);
+    }
+
+
+    public PedidoResponseDTO(Pedido pedido,String linkWhatsapp) {
         this(
                 pedido.getId(),
                 pedido.getDataPedido(),
                 pedido.getObservacoes(),
                 pedido.getValorTotal(),
                 pedido.getStatus().toString(),
+                linkWhatsapp,
                 new ClienteResponseDTO(pedido.getCliente()),
                 pedido.getItens().stream().map(ItemPedidoResponseDTO::new).toList()
         );

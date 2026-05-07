@@ -48,8 +48,8 @@ public class PedidoService {
         pedido.setStatus(PedidoStatus.COMPLETO);
         Pedido pedidoSalvo = pedidoReposiroy.save(pedido);
         geradorPedidos.registraMovimentoEstoque(pedidoSalvo);
-        geradorMensagemWhatsapp.geradorMensagem(pedidoSalvo);
-        return new PedidoResponseDTO(pedidoSalvo);
+        String linkWhatsapp = geradorMensagemWhatsapp.gerarLinkWhatsapp(pedidoSalvo);
+        return new PedidoResponseDTO(pedidoSalvo, linkWhatsapp);
     }
 
     @Transactional

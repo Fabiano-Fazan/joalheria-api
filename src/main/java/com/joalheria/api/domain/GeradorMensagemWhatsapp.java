@@ -13,19 +13,25 @@ public class GeradorMensagemWhatsapp {
     @Value("${whatsapp.numero}")
     private String numeroWhatsapp;
 
-    public String geradorMensagem(Pedido pedido){
+    public String gerarLinkWhatsapp(Pedido pedido){
 
         StringBuilder mensagem = new StringBuilder();
-        mensagem.append("Olá! Segue o meu pedido:%n%n");
+        mensagem.append("Olá! Segue o meu pedido:\n\n");
         pedido.getItens().forEach(itemPedido -> mensagem.append("- ")
                 .append(itemPedido.getProduto().getNome())
                 .append(" | Qtd: ")
                 .append(itemPedido.getQuantidade())
                 .append(" | R$ ")
                 .append(itemPedido.getPreco())
-                .append("%n"));
-        mensagem.append("%nValor Total: R$ ")
+                .append("\n"));
+
+        mensagem.append("\nValor Total: R$ ")
                 .append(pedido.getValorTotal());
+
+        if(pedido.getObservacoes() != null && !pedido.getObservacoes().isBlank()){
+            mensagem.append("\n\nObservações: ")
+                    .append(pedido.getObservacoes());
+        }
 
         String mensagemCodificada = URLEncoder.encode(
                 mensagem.toString(),

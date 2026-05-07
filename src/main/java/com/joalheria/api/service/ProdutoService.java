@@ -13,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -50,19 +53,9 @@ public class ProdutoService {
         Produtos produto = new Produtos();
         atualizaDados(produtoRequestDTO, produto);
         produto.setDisponivel(true);
-
-        for (int i = 0; i < imagens.size(); i++) {
-
-            String url = cloudinaryService.uploadProdutoImagem(imagens.get(i), produto.getId());
-
-            ProdutoImagem img = ProdutoImagem.builder()
-                    .imagemUrl(url)
-                    .imagemPrincipal(i == imagemPrincipalIndex)
-                    .produto(produto)
-                    .build();
-
-            produto.getImagens().add(img);
-        }
+        produto = produtoRespository.save(produto);
+        List<ProdutoImagem> produtoImagens = criarProdutoImagens(imagens, imagemPrincipalIndex, produto);
+        produto.setImagens(produtoImagens);
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
     }
@@ -72,6 +65,7 @@ public class ProdutoService {
         Produtos produto = produtoRespository.findWithLockById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         atualizaDados(produtoRequestDTO, produto);
+        produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
         }
 
@@ -90,7 +84,6 @@ public class ProdutoService {
         produto.setCategoria(produtoRequestDTO.categoria());
         produto.setQuantidade(produtoRequestDTO.quantidade());
         produto.setDestaque(Boolean.TRUE.equals(produtoRequestDTO.destaque()));
-        produtoRespository.save(produto);
     }
 
     private void validaImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex){
@@ -110,5 +103,20 @@ public class ProdutoService {
         if (imagemPrincipalIndex < 0 || imagemPrincipalIndex >= imagens.size()) {
             throw new NegocioException("Imagem principal inválida.");
         }
+    }
+
+    private List<ProdutoImagem> criarProdutoImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex, Produtos produto) {
+        UUID produtoId = produto.getId();
+          return IntStream.range(0, imagens.size())
+                .parallel()
+                .mapToObj(i -> {
+                    String url = cloudinaryService.uploadProdutoImagem(imagens.get(i), produtoId);
+                    return ProdutoImagem.builder()
+                            .imagemUrl(url)
+                            .imagemPrincipal(i == imagemPrincipalIndex)
+                            .produto(produto)
+                            .build();
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
