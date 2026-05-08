@@ -6,6 +6,7 @@ import com.joalheria.api.domain.GeradorPedidos;
 import com.joalheria.api.dto.request.PedidoRequestDTO;
 import com.joalheria.api.dto.response.PedidoResponseDTO;
 import com.joalheria.api.exception.RecursoNaoEncontradoException;
+import com.joalheria.api.model.entity.Cliente;
 import com.joalheria.api.model.entity.Pedido;
 import com.joalheria.api.model.enums.PedidoStatus;
 import com.joalheria.api.repositoy.ClienteRepository;
@@ -32,8 +33,10 @@ public class PedidoService {
                 .map(PedidoResponseDTO::new);
     }
 
-    public Page<PedidoResponseDTO> listarPorCliente(String nome, Pageable pageable){
-        return pedidoReposiroy.findByClienteNomeContainingIgnoreCase(nome, pageable)
+    public Page<PedidoResponseDTO> listarPorCliente(String email, Pageable pageable){
+        Cliente cliente = clienteRepository.findByEmail(email)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
+        return pedidoReposiroy.findByClienteEmailContainingIgnoreCase(email, pageable)
                 .map(PedidoResponseDTO::new);
     }
 

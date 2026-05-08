@@ -29,8 +29,8 @@ public class PedidoController {
     @GetMapping("Cliente")
     public ResponseEntity<Page<PedidoResponseDTO>> listarPedidosPorCliente(
             @PageableDefault(size = 3, sort = "dataPedido", direction = Sort.Direction.DESC)
-            @Valid @RequestParam String nome, Pageable pageable){
-        return ResponseEntity.ok(pedidoService.listarPorCliente(nome, pageable));
+            @Valid @RequestParam String email, Pageable pageable){
+        return ResponseEntity.ok(pedidoService.listarPorCliente(email, pageable));
     }
 
     @PostMapping
