@@ -2,11 +2,9 @@ package com.joalheria.api.service;
 
 import com.joalheria.api.domain.GeradorMensagemWhatsapp;
 import com.joalheria.api.domain.GeradorPedidos;
-
 import com.joalheria.api.dto.request.PedidoRequestDTO;
 import com.joalheria.api.dto.response.PedidoResponseDTO;
 import com.joalheria.api.exception.RecursoNaoEncontradoException;
-import com.joalheria.api.model.entity.Cliente;
 import com.joalheria.api.model.entity.Pedido;
 import com.joalheria.api.model.enums.PedidoStatus;
 import com.joalheria.api.repositoy.ClienteRepository;
@@ -34,9 +32,9 @@ public class PedidoService {
     }
 
     public Page<PedidoResponseDTO> listarPorCliente(String email, Pageable pageable){
-        Cliente cliente = clienteRepository.findByEmail(email)
+        clienteRepository.findByEmail(email)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
-        return pedidoReposiroy.findByClienteEmailContainingIgnoreCase(email, pageable)
+        return pedidoReposiroy.findByClienteEmailIgnoreCase(email, pageable)
                 .map(PedidoResponseDTO::new);
     }
 
@@ -45,7 +43,7 @@ public class PedidoService {
         Pedido pedido = new Pedido();
         pedido.setCliente(clienteRepository.findByEmail(emailCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado")));
-        pedido.setObservacoes(dto.observacoes());
+        pedido.setObservacoes(dto.observacoes() == null ? "" : dto.observacoes().trim());
         dto.itens().forEach(itemDto -> pedido.getItens().add(geradorPedidos.criarItemPedido(itemDto, pedido)));
         pedido.setValorTotal(geradorPedidos.calcularValorTotal(pedido));
         pedido.setStatus(PedidoStatus.COMPLETO);
@@ -59,8 +57,9 @@ public class PedidoService {
     public void deletarPedido(UUID id){
         Pedido pedido = pedidoReposiroy.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado"));
-        pedido.getItens().forEach(item -> geradorPedidos.reverterMovimentoEstoque(pedido));
-        pedidoReposiroy.delete(pedido);
+        geradorPedidos.reverterMovimentoEstoque(pedido);
+        pedido.setStatus(PedidoStatus.CANCELADO);
+        pedidoReposiroy.save(pedido);
     }
 }
 

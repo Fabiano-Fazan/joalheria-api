@@ -3,6 +3,7 @@ package com.joalheria.api.service;
 import com.joalheria.api.dto.request.ProdutoRequestDTO;
 import com.joalheria.api.dto.response.ProdutoResponseDTO;
 import com.joalheria.api.exception.NegocioException;
+import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.ProdutoImagem;
 import com.joalheria.api.model.entity.Produtos;
 import com.joalheria.api.repositoy.ProdutoRespository;
@@ -13,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Service
@@ -36,7 +34,7 @@ public class ProdutoService {
     }
 
     public Page<ProdutoResponseDTO> listarProdutosPorCategoria(String categoria, Pageable pageable){
-        return produtoRespository.findByCategoriaContainingIgnoreCase(categoria, pageable)
+        return produtoRespository.findByCategoria(categoria, pageable)
                 .map(ProdutoResponseDTO::new);
     }
 
@@ -52,19 +50,25 @@ public class ProdutoService {
         validaImagens(imagens, imagemPrincipalIndex);
         Produtos produto = new Produtos();
         atualizaDados(produtoRequestDTO, produto);
-        produto.setDisponivel(true);
-        produto = produtoRespository.save(produto);
-        List<ProdutoImagem> produtoImagens = criarProdutoImagens(imagens, imagemPrincipalIndex, produto);
+        produto.setDisponivel(produtoRequestDTO.quantidade() != null && produtoRequestDTO.quantidade() > 0);
+        List<ImagemUploadPendente> uploads = uploadImagens(imagens, imagemPrincipalIndex);
+        List<ProdutoImagem> produtoImagens = criarProdutoImagens(produto, uploads);
         produto.setImagens(produtoImagens);
-        produtoRespository.save(produto);
-        return new ProdutoResponseDTO(produto);
+        try {
+            produto = produtoRespository.save(produto);
+            return new ProdutoResponseDTO(produto);
+        } catch (RuntimeException e) {
+            uploads.forEach(upload -> cloudinaryService.deletarImagem(upload.publicId()));
+            throw e;
+        }
     }
 
     @Transactional
     public ProdutoResponseDTO atualizarProduto(UUID id, ProdutoRequestDTO produtoRequestDTO){
         Produtos produto = produtoRespository.findWithLockById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         atualizaDados(produtoRequestDTO, produto);
+        produto.setDisponivel(produtoRequestDTO.quantidade() != null && produtoRequestDTO.quantidade() > 0);
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
         }
@@ -105,18 +109,42 @@ public class ProdutoService {
         }
     }
 
-    private List<ProdutoImagem> criarProdutoImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex, Produtos produto) {
-        UUID produtoId = produto.getId();
-          return IntStream.range(0, imagens.size())
-                .parallel()
-                .mapToObj(i -> {
-                    String url = cloudinaryService.uploadProdutoImagem(imagens.get(i), produtoId);
-                    return ProdutoImagem.builder()
-                            .imagemUrl(url)
-                            .imagemPrincipal(i == imagemPrincipalIndex)
-                            .produto(produto)
-                            .build();
-                })
-                .collect(Collectors.toCollection(ArrayList::new));
+    private List<ProdutoImagem> criarProdutoImagens(Produtos produto, List<ImagemUploadPendente> uploads) {
+        return uploads.stream()
+                .map(upload -> ProdutoImagem.builder()
+                        .imagemUrl(upload.secureUrl())
+                        .imagemPrincipal(upload.imagemPrincipal())
+                        .produto(produto)
+                        .build())
+                .toList();
+    }
+
+    private List<ImagemUploadPendente> uploadImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex) {
+        UUID uploadBatchId = UUID.randomUUID();
+        List<ImagemUploadPendente> uploadsConcluidos = Collections.synchronizedList(new ArrayList<>());
+        try {
+            return IntStream.range(0, imagens.size())
+                    .parallel()
+                    .mapToObj(i -> {
+                        CloudinaryService.UploadResult uploadResult =
+                                cloudinaryService.uploadProdutoImagem(imagens.get(i), uploadBatchId);
+                        ImagemUploadPendente upload = new ImagemUploadPendente(
+                                i,
+                                uploadResult.secureUrl(),
+                                uploadResult.publicId(),
+                                i == imagemPrincipalIndex
+                        );
+                        uploadsConcluidos.add(upload);
+                        return upload;
+                    })
+                    .sorted(Comparator.comparingInt(ImagemUploadPendente::ordem))
+                    .toList();
+        } catch (RuntimeException e) {
+            uploadsConcluidos.forEach(upload -> cloudinaryService.deletarImagem(upload.publicId()));
+            throw e;
+        }
+    }
+
+    private record ImagemUploadPendente(int ordem, String secureUrl, String publicId, boolean imagemPrincipal) {
     }
 }

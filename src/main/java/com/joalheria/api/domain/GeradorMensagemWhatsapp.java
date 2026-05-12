@@ -16,7 +16,7 @@ public class GeradorMensagemWhatsapp {
     public String gerarLinkWhatsapp(Pedido pedido){
 
         StringBuilder mensagem = new StringBuilder();
-        mensagem.append("Olá! Segue o meu pedido:\n\n");
+        mensagem.append("Oi, tudo bem? Me chamo ").append(pedido.getCliente().getNome()).append(". Gostaria de fazer um pedido:\n\n");
         pedido.getItens().forEach(itemPedido -> mensagem.append("- ")
                 .append(itemPedido.getProduto().getNome())
                 .append(" | Qtd: ")

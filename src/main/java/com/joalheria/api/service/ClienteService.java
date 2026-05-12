@@ -2,6 +2,7 @@ package com.joalheria.api.service;
 
 import com.joalheria.api.dto.request.ClienteRequestDTO;
 import com.joalheria.api.dto.response.ClienteResponseDTO;
+import com.joalheria.api.exception.NegocioException;
 import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.Cliente;
 import com.joalheria.api.repositoy.ClienteRepository;
@@ -9,8 +10,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.UUID;
 
 @Service
@@ -28,7 +31,7 @@ public class ClienteService {
                 .map(ClienteResponseDTO::new);
     }
 
-    public Page<ClienteResponseDTO> buscarClientePorTelefone(int telefone, Pageable pageable){
+    public Page<ClienteResponseDTO> buscarClientePorTelefone(String telefone, Pageable pageable){
         return clienteRepository.findByTelefone(telefone, pageable)
                 .map(ClienteResponseDTO::new);
     }
@@ -59,7 +62,19 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO atualizarCliente(String emailCliente, ClienteRequestDTO clienteRequestDTO){
+    public ClienteResponseDTO atualizarCliente(
+            String emailCliente,
+            ClienteRequestDTO clienteRequestDTO,
+            String emailAutenticado,
+            Collection<? extends GrantedAuthority> authorities
+    ){
+        boolean isAdmin = authorities.stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+
+        if (!isAdmin && !emailCliente.equalsIgnoreCase(emailAutenticado)) {
+            throw new NegocioException("Você não pode alterar o cadastro de outro cliente.");
+        }
+
         Cliente cliente = clienteRepository.findByEmail(emailCliente)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
         atualizaDados(clienteRequestDTO, cliente);

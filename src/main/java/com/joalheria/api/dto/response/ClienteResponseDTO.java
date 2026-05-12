@@ -19,7 +19,7 @@ public record ClienteResponseDTO(
                 cliente.getEmail(),
                 cliente.getTelefone(),
                 cliente.getEndereco(),
-                cliente.getDataCadastro().toString()
+                cliente.getDataCadastro() == null ? null : cliente.getDataCadastro().toString()
         );
     }
 }

@@ -15,7 +15,7 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    public String uploadProdutoImagem(MultipartFile file, UUID produtoId){
+    public UploadResult uploadProdutoImagem(MultipartFile file, UUID produtoId){
         validaImagem(file);
         try {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
@@ -24,9 +24,20 @@ public class CloudinaryService {
                         "folder", "products/" + produtoId,
                         "resource_type", "image"
             ));
-            return uploadResult.get("secure_url").toString();
+            return new UploadResult(
+                    uploadResult.get("secure_url").toString(),
+                    uploadResult.get("public_id").toString()
+            );
         }catch (IOException e){
             throw new RuntimeException("Erro ao fazer upload da imagem: " + e.getMessage());
+        }
+    }
+
+    public void deletarImagem(String publicId) {
+        try {
+            cloudinary.uploader().destroy(publicId, Map.of());
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao remover imagem enviada: " + e.getMessage());
         }
     }
 
@@ -41,4 +52,6 @@ public class CloudinaryService {
         }
     }
 
+    public record UploadResult(String secureUrl, String publicId) {
+    }
 }

@@ -1,6 +1,7 @@
 package com.joalheria.api.domain;
 
 import com.joalheria.api.dto.request.ItemPedidoResquestDTO;
+import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.ItemPedido;
 import com.joalheria.api.model.entity.Pedido;
 import com.joalheria.api.model.entity.Produtos;
@@ -21,7 +22,7 @@ public class GeradorPedidos {
 
     public ItemPedido criarItemPedido(ItemPedidoResquestDTO dto, Pedido pedido){
         Produtos produto = produtoRespository.findWithLockById(dto.produtoId())
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         return ItemPedido.builder()
                 .pedido(pedido)
                 .produto(produto)

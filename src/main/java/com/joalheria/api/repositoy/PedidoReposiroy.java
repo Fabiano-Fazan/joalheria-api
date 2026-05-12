@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PedidoReposiroy extends JpaRepository<Pedido, UUID> {
-    Page<Pedido> findByClienteEmailContainingIgnoreCase(String nome, Pageable pageable);
+    Page<Pedido> findByClienteEmailIgnoreCase(String email, Pageable pageable);
 
     Long countByDataPedidoBetween(LocalDateTime inicio, LocalDateTime fim);
 

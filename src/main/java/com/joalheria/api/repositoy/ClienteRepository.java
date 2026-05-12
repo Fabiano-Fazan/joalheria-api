@@ -11,6 +11,6 @@ import java.util.UUID;
 public interface ClienteRepository extends JpaRepository<Cliente, UUID> {
     Page<Cliente> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
     Optional<Cliente> findByEmail(String email);
-    Page<Cliente> findByTelefone(int telefone, Pageable pageable);
+    Page<Cliente> findByTelefone(String telefone, Pageable pageable);
 
 }

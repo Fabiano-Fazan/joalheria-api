@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +24,23 @@ public class ProdutosController {
     private final ProdutoService produtoService;
 
     @GetMapping()
-    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutos(Pageable pageable){
+    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutos(
+            @PageableDefault(size = 6)
+            Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutos(pageable));
     }
 
     @GetMapping("/nome")
-    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorNome(@RequestParam String name, Pageable pageable){
+    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorNome(
+            @RequestParam String name,
+            @PageableDefault(size = 6) Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutosPorNome(name, pageable));
     }
 
     @GetMapping("/categoria")
-    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorCategoria(@RequestParam String categoria, Pageable pageable){
+    public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorCategoria(
+            @RequestParam String categoria,
+            @PageableDefault(size = 6) Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutosPorCategoria(categoria, pageable));
     }
 

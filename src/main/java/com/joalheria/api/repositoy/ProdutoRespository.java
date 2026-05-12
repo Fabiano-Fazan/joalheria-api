@@ -13,7 +13,9 @@ import java.util.UUID;
 
 public interface ProdutoRespository extends JpaRepository<Produtos, UUID> {
     Page<Produtos> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
-    Page<Produtos> findByCategoriaContainingIgnoreCase(String categoria, Pageable pageable);
+    Page<Produtos> findByCategoria(String categoria, Pageable pageable);
+
+
     List<Produtos> findByDestaqueTrue();
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

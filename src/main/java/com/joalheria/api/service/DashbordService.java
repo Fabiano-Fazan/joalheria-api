@@ -26,13 +26,14 @@ public class DashbordService {
     public BigDecimal valorTotalVendidoMesAtual() {
         LocalDateTime inicio = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime fim = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
-        return pedidoReposiroy.calcularValorTotalEntreDatas(inicio, fim);
+        BigDecimal total = pedidoReposiroy.calcularValorTotalEntreDatas(inicio, fim);
+        return total == null ? BigDecimal.ZERO : total;
     }
 
     public List<ProdutoMaisVendidoDTO> produtosMaisVendidosMesAtual(Pageable pageable) {
         LocalDateTime inicio = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime fim = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
-        return List.of(pedidoReposiroy.buscarProdutosMaisVendidosMesAtual(inicio, fim, pageable).toArray(new ProdutoMaisVendidoDTO[0]));
+        return pedidoReposiroy.buscarProdutosMaisVendidosMesAtual(inicio, fim, pageable);
     }
 
 }
