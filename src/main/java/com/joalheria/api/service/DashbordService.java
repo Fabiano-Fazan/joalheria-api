@@ -1,6 +1,7 @@
 package com.joalheria.api.service;
 
 import com.joalheria.api.dto.response.ProdutoMaisVendidoDTO;
+import com.joalheria.api.model.enums.PedidoStatus;
 import com.joalheria.api.repositoy.PedidoReposiroy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +21,13 @@ public class DashbordService {
     public Long filtraPedidosMesAtual() {
         LocalDateTime inicio = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime fim = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
-        return pedidoReposiroy.countByDataPedidoBetween(inicio, fim);
+        return pedidoReposiroy.contarTotalPedidoCompletoEntreDatas(inicio, fim,PedidoStatus.COMPLETO);
     }
 
     public BigDecimal valorTotalVendidoMesAtual() {
         LocalDateTime inicio = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime fim = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
-        BigDecimal total = pedidoReposiroy.calcularValorTotalEntreDatas(inicio, fim);
-        return total == null ? BigDecimal.ZERO : total;
+        return pedidoReposiroy.calcularValorTotalEntreDatas(inicio, fim, PedidoStatus.COMPLETO);
     }
 
     public List<ProdutoMaisVendidoDTO> produtosMaisVendidosMesAtual(Pageable pageable) {

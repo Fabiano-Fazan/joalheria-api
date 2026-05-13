@@ -29,7 +29,7 @@ public record PedidoResponseDTO(
                 pedido.getDataPedido(),
                 pedido.getObservacoes(),
                 pedido.getValorTotal(),
-                pedido.getStatus().toString(),
+                pedido.getStatus() != null ? pedido.getStatus().name() : null,
                 linkWhatsapp,
                 new ClienteResponseDTO(pedido.getCliente()),
                 pedido.getItens().stream().map(ItemPedidoResponseDTO::new).toList()

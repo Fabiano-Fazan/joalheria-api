@@ -2,6 +2,7 @@ package com.joalheria.api.repositoy;
 
 import com.joalheria.api.dto.response.ProdutoMaisVendidoDTO;
 import com.joalheria.api.model.entity.Pedido;
+import com.joalheria.api.model.enums.PedidoStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,10 +17,30 @@ import java.util.UUID;
 public interface PedidoReposiroy extends JpaRepository<Pedido, UUID> {
     Page<Pedido> findByClienteEmailIgnoreCase(String email, Pageable pageable);
 
-    Long countByDataPedidoBetween(LocalDateTime inicio, LocalDateTime fim);
 
-    @Query("SELECT SUM(p.valorTotal) FROM Pedido p WHERE p.dataPedido BETWEEN :inicio AND :fim")
-    BigDecimal calcularValorTotalEntreDatas(LocalDateTime inicio, LocalDateTime fim);
+    @Query("""
+     SELECT COUNT(p)
+     FROM Pedido p
+     WHERE p.status = :completo
+     AND p.dataPedido BETWEEN :inicio AND :fim
+     """)
+    Long contarTotalPedidoCompletoEntreDatas(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim,
+            @Param("completo") PedidoStatus completo
+            );
+
+    @Query("""
+     SELECT COALESCE(SUM(p.valorTotal), 0)
+     FROM Pedido p
+     WHERE p.status = :completo
+     AND p.dataPedido BETWEEN :inicio AND :fim
+     """)
+    BigDecimal calcularValorTotalEntreDatas(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim,
+            @Param("completo") PedidoStatus completo
+            );
 
     @Query("""
     select new com.joalheria.api.dto.response.ProdutoMaisVendidoDTO(
