@@ -27,9 +27,11 @@ public record ProdutoRequestDTO (
         Integer quantidade,
 
         @NotNull(message = "O campo destaque é obrigatório")
-        Boolean destaque
+        Boolean destaque,
+
+        Boolean inativo
 ){
-        public ProdutoRequestDTO(String nome, String descricao, String cor, String categoria, BigDecimal preco, Integer quantidade, Boolean destaque ) {
+        public ProdutoRequestDTO(String nome, String descricao, String cor, String categoria, BigDecimal preco, Integer quantidade, Boolean destaque, Boolean inativo ) {
                 this.nome = nome;
                 this.descricao = descricao;
                 this.cor = cor;
@@ -37,5 +39,6 @@ public record ProdutoRequestDTO (
                 this.preco = preco;
                 this.quantidade = quantidade;
                 this.destaque = destaque;
+                this.inativo = inativo;
         }
 }

@@ -2,6 +2,7 @@ package com.joalheria.api.service;
 
 import com.joalheria.api.dto.request.ProdutoRequestDTO;
 import com.joalheria.api.dto.response.ProdutoResponseDTO;
+import com.joalheria.api.event.ProdutoImagemRollbackEvent;
 import com.joalheria.api.exception.NegocioException;
 import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.ProdutoImagem;
@@ -9,6 +10,7 @@ import com.joalheria.api.model.entity.Produtos;
 import com.joalheria.api.repositoy.ProdutoRespository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.stream.IntStream;
 public class ProdutoService {
     private final ProdutoRespository produtoRespository;
     private final CloudinaryService cloudinaryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Page<ProdutoResponseDTO> listarProdutos(Pageable pageable){
         return produtoRespository.findAll(pageable)
@@ -50,17 +53,13 @@ public class ProdutoService {
         validaImagens(imagens, imagemPrincipalIndex);
         Produtos produto = new Produtos();
         atualizaDados(produtoRequestDTO, produto);
-        produto.setDisponivel(produtoRequestDTO.quantidade() != null && produtoRequestDTO.quantidade() > 0);
         List<ImagemUploadPendente> uploads = uploadImagens(imagens, imagemPrincipalIndex);
+        List<String> publicIds = uploads.stream().map(ImagemUploadPendente::publicId).toList();
+        eventPublisher.publishEvent(new ProdutoImagemRollbackEvent(publicIds));
         List<ProdutoImagem> produtoImagens = criarProdutoImagens(produto, uploads);
         produto.setImagens(produtoImagens);
-        try {
-            produto = produtoRespository.save(produto);
-            return new ProdutoResponseDTO(produto);
-        } catch (RuntimeException e) {
-            uploads.forEach(upload -> cloudinaryService.deletarImagem(upload.publicId()));
-            throw e;
-        }
+        produto = produtoRespository.save(produto);
+        return new ProdutoResponseDTO(produto);
     }
 
     @Transactional
@@ -68,7 +67,6 @@ public class ProdutoService {
         Produtos produto = produtoRespository.findWithLockById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         atualizaDados(produtoRequestDTO, produto);
-        produto.setDisponivel(produtoRequestDTO.quantidade() != null && produtoRequestDTO.quantidade() > 0);
         produtoRespository.save(produto);
         return new ProdutoResponseDTO(produto);
         }
@@ -88,12 +86,13 @@ public class ProdutoService {
         produto.setCategoria(produtoRequestDTO.categoria());
         produto.setQuantidade(produtoRequestDTO.quantidade());
         produto.setDestaque(Boolean.TRUE.equals(produtoRequestDTO.destaque()));
+        produto.setInativo(produtoRequestDTO.inativo());
     }
 
     private void validaImagens(List<MultipartFile> imagens, Integer imagemPrincipalIndex){
 
-        if (imagens == null || imagens.isEmpty()) {
-            throw new NegocioException("O produto precisa ter pelo menos uma imagem.");
+        if (imagens.isEmpty()) {
+            throw new IllegalArgumentException("O arquivo de imagem não pode ser vazio.");
         }
 
         if (imagens.size() > 4) {

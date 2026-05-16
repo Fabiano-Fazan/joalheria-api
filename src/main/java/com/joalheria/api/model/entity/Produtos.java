@@ -43,7 +43,7 @@ public class Produtos {
     @Column(nullable = false)
     private Integer quantidade = 0;
 
-    private Boolean disponivel;
+    private Boolean inativo = false;
 
     @Column(nullable = false)
     private Boolean destaque = false;

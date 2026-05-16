@@ -14,7 +14,7 @@ public record ProdutoResponseDTO(
         String cor,
         String categoria,
         Integer quantidade,
-        Boolean disponivel,
+        Boolean inativo,
         Boolean destaque,
         List<ProdutoImagemResponseDTO> imagens
 
@@ -28,7 +28,7 @@ public record ProdutoResponseDTO(
                 produto.getCor(),
                 produto.getCategoria(),
                 produto.getQuantidade(),
-                produto.getDisponivel(),
+                produto.getInativo(),
                 produto.getDestaque(),
                 produto.getImagens()
                         .stream()

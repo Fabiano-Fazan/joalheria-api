@@ -8,7 +8,7 @@ import com.joalheria.api.exception.RecursoNaoEncontradoException;
 import com.joalheria.api.model.entity.Pedido;
 import com.joalheria.api.model.enums.PedidoStatus;
 import com.joalheria.api.repositoy.ClienteRepository;
-import com.joalheria.api.repositoy.PedidoReposiroy;
+import com.joalheria.api.repositoy.PedidoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,20 +21,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PedidoService {
 
-    private final PedidoReposiroy pedidoReposiroy;
+    private final PedidoRepository pedidoRepository;
     private final GeradorPedidos geradorPedidos;
     private final ClienteRepository clienteRepository;
     private final GeradorMensagemWhatsapp geradorMensagemWhatsapp;
 
     public Page<PedidoResponseDTO> listarPedidos(Pageable pageable){
-        return pedidoReposiroy.findAll(pageable)
+        return pedidoRepository.findAll(pageable)
                 .map(PedidoResponseDTO::new);
     }
 
     public Page<PedidoResponseDTO> listarPorCliente(String email, Pageable pageable){
         clienteRepository.findByEmail(email)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente não encontrado"));
-        return pedidoReposiroy.findByClienteEmailIgnoreCase(email, pageable)
+        return pedidoRepository.findByClienteEmailIgnoreCase(email, pageable)
                 .map(PedidoResponseDTO::new);
     }
 
@@ -47,7 +47,7 @@ public class PedidoService {
         dto.itens().forEach(itemDto -> pedido.getItens().add(geradorPedidos.criarItemPedido(itemDto, pedido)));
         pedido.setValorTotal(geradorPedidos.calcularValorTotal(pedido));
         pedido.setStatus(PedidoStatus.COMPLETO);
-        Pedido pedidoSalvo = pedidoReposiroy.save(pedido);
+        Pedido pedidoSalvo = pedidoRepository.save(pedido);
         geradorPedidos.registraMovimentoEstoque(pedidoSalvo);
         String linkWhatsapp = geradorMensagemWhatsapp.gerarLinkWhatsapp(pedidoSalvo);
         return new PedidoResponseDTO(pedidoSalvo, linkWhatsapp);
@@ -55,11 +55,11 @@ public class PedidoService {
 
     @Transactional
     public void deletarPedido(UUID id){
-        Pedido pedido = pedidoReposiroy.findById(id)
+        Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado"));
         geradorPedidos.reverterMovimentoEstoque(pedido);
         pedido.setStatus(PedidoStatus.CANCELADO);
-        pedidoReposiroy.save(pedido);
+        pedidoRepository.save(pedido);
     }
 }
 

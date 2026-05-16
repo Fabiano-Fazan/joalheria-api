@@ -25,7 +25,7 @@ public class ProdutosController {
 
     @GetMapping()
     public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutos(
-            @PageableDefault(size = 6)
+            @PageableDefault(size = 12)
             Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutos(pageable));
     }
@@ -33,14 +33,14 @@ public class ProdutosController {
     @GetMapping("/nome")
     public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorNome(
             @RequestParam String name,
-            @PageableDefault(size = 6) Pageable pageable){
+            @PageableDefault(size = 12) Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutosPorNome(name, pageable));
     }
 
     @GetMapping("/categoria")
     public ResponseEntity<Page<ProdutoResponseDTO>> listarProdutosPorCategoria(
             @RequestParam String categoria,
-            @PageableDefault(size = 6) Pageable pageable){
+            @PageableDefault(size = 12) Pageable pageable){
         return ResponseEntity.ok(produtoService.listarProdutosPorCategoria(categoria, pageable));
     }
 

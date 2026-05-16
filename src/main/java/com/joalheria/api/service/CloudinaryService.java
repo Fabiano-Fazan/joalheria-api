@@ -16,7 +16,7 @@ public class CloudinaryService {
     private final Cloudinary cloudinary;
 
     public UploadResult uploadProdutoImagem(MultipartFile file, UUID produtoId){
-        validaImagem(file);
+
         try {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
@@ -38,17 +38,6 @@ public class CloudinaryService {
             cloudinary.uploader().destroy(publicId, Map.of());
         } catch (IOException e) {
             throw new RuntimeException("Erro ao remover imagem enviada: " + e.getMessage());
-        }
-    }
-
-    private void validaImagem(MultipartFile file){
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("O arquivo de imagem não pode ser vazio.");
-        }
-        String contentType = file.getContentType();
-
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("O arquivo deve ser uma imagem válida.");
         }
     }
 
