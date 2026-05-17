@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,9 @@ public class SecurityConfig {
 
     @Value("${ADMIN_EMAIL}")
     private String adminEmail;
+
+    @Value("${ADMIN_EMAIL2}")
+    private String adminEmail2;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -38,6 +42,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -46,32 +55,22 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        .requestMatchers("/", "/error").permitAll()
-                        .requestMatchers("/api/auth/me").permitAll()
-
+                        .requestMatchers("/", "/error", "/api/auth/me").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/produtos/**").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/produtos/**").hasRole("ADMIN")
-
                         .requestMatchers("/api/estoque/**").hasRole("ADMIN")
-
                         .requestMatchers(HttpMethod.GET,"/api/dashbord/**").hasRole("ADMIN")
-
                         .requestMatchers(HttpMethod.GET, "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/clientes/**").hasAnyRole("ADMIN", "CLIENTE")
-
                         .requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("ADMIN", "CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/cliente").hasAnyRole("ADMIN", "CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/pedidos/**").hasRole("ADMIN")
-
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -96,32 +95,28 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             String email = jwt.getClaimAsString("email");
-
-            if (email != null && email.equalsIgnoreCase(adminEmail)) {
+            if (email != null && (email.equalsIgnoreCase(adminEmail) || email.equalsIgnoreCase(adminEmail2))) {
                 return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
-
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_CLIENTE"));
         });
-
         return converter;
     }
 }
