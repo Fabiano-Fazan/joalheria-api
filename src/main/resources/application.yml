@@ -1,7 +1,6 @@
 server:
   port: ${PORT:8081}
-  forward-headers-strategy: framework
-  use-forward-headers: true
+  forward-headers-strategy: native
   servlet:
     session:
       cookie:
@@ -22,8 +21,8 @@ whatsapp:
   numero: ${WHATSAPP_NUMERO}
 
 admin:
-    email: ${ADMIN_EMAIL}
-    email2: ${ADMIN_EMAIL2}
+  email: ${ADMIN_EMAIL}
+  email2: ${ADMIN_EMAIL2}
 
 spring:
   application:
