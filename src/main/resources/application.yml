@@ -1,5 +1,11 @@
 server:
   port: ${PORT:8081}
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
