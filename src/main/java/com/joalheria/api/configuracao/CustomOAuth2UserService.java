@@ -22,7 +22,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Value("${ADMIN_EMAIL}")
     private String adminEmail;
 
-    @Value("{ADMIN_EMAIL2}")
+    @Value("${ADMIN_EMAIL2}")
     private String adminEmail2;
 
     @Override
@@ -37,7 +37,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             Cliente cliente = clienteService.buscarOuCadastrarPorGoogle(email, nome, googleId);
         }
 
-        String role = (email != null && email.equalsIgnoreCase(adminEmail)) || (email != null && email.equalsIgnoreCase(adminEmail2))
+        String role = (email != null && (email.equalsIgnoreCase(adminEmail) || email.equalsIgnoreCase(adminEmail2)))
                 ? "ROLE_ADMIN"
                 : "ROLE_CLIENTE";
 

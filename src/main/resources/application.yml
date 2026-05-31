@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8081}
+  port: ${PORT:8084}
   forward-headers-strategy: native
   servlet:
     session:
@@ -40,7 +40,7 @@ spring:
         name: JSESSIONID
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     hikari:
